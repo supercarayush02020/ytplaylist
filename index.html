@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASMR Video Library</title>
+    <title>ASMR Library App</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ef4444"> 
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -132,7 +135,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            cursor: pointer; /* Indicate it's clickable */
+            cursor: pointer; 
         }
 
         .video-card:hover {
@@ -252,7 +255,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- MODAL STYLES (NEW) --- */
+        /* --- MODAL STYLES --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -275,7 +278,7 @@
 
         .modal-content {
             position: relative;
-            background-color: transparent; /* Make content background transparent to only show video */
+            background-color: transparent; 
             width: 90%;
             max-width: 800px; 
             transform: scale(0.9);
@@ -365,7 +368,7 @@
 <body>
 
     <div class="header">
-        <h1>ASMR Library</h1>
+        <h1>ASMR App</h1>
         <div class="controls">
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -407,6 +410,19 @@
     </div>
 
     <script>
+        // 🟢 PWA: Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+        
         // --- CONSTANTS ---
         const CSV_FILE = 'asmr.csv';
         const GRID = document.getElementById('video-grid');
@@ -422,48 +438,31 @@
 
         let allVideos = [];
 
-        // --- UTILITY FUNCTIONS (NEW) ---
-        /**
-         * Extracts the YouTube video ID from a standard URL.
-         * @param {string} url - The full YouTube video URL.
-         * @returns {string|null} The video ID (e.g., 'm32X0PHKkno').
-         */
+        // --- UTILITY FUNCTIONS ---
         function getVideoId(url) {
             const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
             const match = url.match(regex);
             return match ? match[1] : null;
         }
 
-        /**
-         * Opens the video modal and loads the video.
-         * @param {string} videoUrl - The full YouTube video URL.
-         */
         function openModal(videoUrl) {
             const videoId = getVideoId(videoUrl);
-            if (!videoId) {
-                console.error("Invalid YouTube URL:", videoUrl);
-                return;
-            }
+            if (!videoId) return;
             
-            // Construct the embed URL with autoplay
             const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
             
             VIDEO_PLAYER.src = embedUrl;
             MODAL.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+            document.body.style.overflow = 'hidden'; 
         }
 
-        /**
-         * Closes the video modal and stops the video.
-         */
         function closeModal() {
-            // Stop the video by clearing the iframe src
             VIDEO_PLAYER.src = ''; 
             MODAL.classList.remove('active');
-            document.body.style.overflow = 'auto'; // Restore scrolling
+            document.body.style.overflow = 'auto'; 
         }
 
-        // --- CSV PARSING (A simple, robust parser for this specific format) ---
+        // --- CSV PARSING ---
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
             const data = [];
@@ -519,18 +518,16 @@
             }
         }
 
-        // --- RENDERING ---
+        // --- RENDERING & EVENT HANDLERS ---
         function renderVideos(videos) {
             GRID.innerHTML = '';
             
             videos.forEach((video, index) => {
                 const delay = index * 0.05; 
-                
-                // Note: Card is now a DIV in the template
                 const card = TEMPLATE.content.cloneNode(true).querySelector('.video-card');
                 card.style.animationDelay = `${delay}s`;
 
-                // Set event listener to open the modal
+                // Event listener to open the modal
                 card.addEventListener('click', () => openModal(video.videoUrl));
 
                 // Populate elements
@@ -542,7 +539,7 @@
                 // Copy URL Button logic
                 const copyButton = card.querySelector('[data-copy-url]');
                 copyButton.onclick = (e) => {
-                    e.stopPropagation(); // Stop click from propagating to the card (which would open the modal)
+                    e.stopPropagation(); // Prevent modal from opening
                     
                     navigator.clipboard.writeText(video.videoUrl).then(() => {
                         const originalText = copyButton.innerHTML;
@@ -550,7 +547,7 @@
                         copyButton.style.backgroundColor = 'green';
                         setTimeout(() => {
                             copyButton.innerHTML = originalText;
-                            copyButton.style.backgroundColor = ''; // Revert to CSS variable
+                            copyButton.style.backgroundColor = ''; 
                         }, 1500);
                     }).catch(err => {
                         console.error('Could not copy text: ', err);
@@ -565,7 +562,6 @@
             }
         }
 
-        // --- SEARCH/FILTERING ---
         function handleSearch() {
             const query = SEARCH_INPUT.value.toLowerCase().trim();
             if (!query) {
@@ -597,7 +593,6 @@
             const isNight = document.body.classList.toggle('night-mode');
             localStorage.setItem('theme', isNight ? 'night' : 'day');
             
-            // Cool icon animation
             THEME_ICON.style.transform = 'rotate(360deg)';
             THEME_ICON.style.transition = 'transform 0.4s ease-out';
             setTimeout(() => {
@@ -616,15 +611,13 @@
             SEARCH_INPUT.addEventListener('input', handleSearch);
             THEME_TOGGLE.addEventListener('click', toggleTheme);
 
-            // Modal Close Listeners (NEW)
+            // Modal Close Listeners
             MODAL_CLOSE_BUTTON.addEventListener('click', closeModal);
-            // Close when clicking outside the video container
             MODAL.addEventListener('click', (e) => {
                 if (e.target === MODAL) {
                     closeModal();
                 }
             });
-            // Close on 'Escape' key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && MODAL.classList.contains('active')) {
                     closeModal();
