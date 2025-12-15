@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Category Video App</title>
+    <title>My Aesthetic Video Library</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ef4444"> 
     
@@ -13,127 +13,144 @@
         /* --- CORE THEME VARIABLES --- */
         :root {
             /* Fallback/Base Day Mode */
-            --bg-color: #f7f9fc;
+            --bg-color: #e3f2fd; /* Light Blue/Sky Background */
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --secondary-text: #6b7280;
-            --shadow-light: rgba(0, 0, 0, 0.1);
-            --shadow-hover: rgba(0, 0, 0, 0.15);
-            --border-color: #e5e7eb;
             --primary-accent: #ef4444; /* ASMR Default */
-            --channel-icon: var(--primary-accent);
+            
+            /* Glassmorphism & Shadow Variables */
+            --glass-bg: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-deep: 0 10px 25px rgba(0, 0, 0, 0.2);
+            --shine-color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Night Mode Overrides (Applied to the body) */
+        /* Night Mode Overrides */
         .night-mode {
-            --bg-color: #1f2937;
-            --card-bg: #374151;
-            --text-color: #f3f4f6;
-            --secondary-text: #9ca3af;
-            --shadow-light: rgba(255, 255, 255, 0.05);
-            --shadow-hover: rgba(255, 255, 255, 0.1);
-            --border-color: #4b5563;
-            /* Primary accent is handled by the specific theme class below */
+            --bg-color: #1a202c; /* Dark Blue Background */
+            --card-bg: #2d3748;
+            --text-color: #e2e8f0;
+            --secondary-text: #a0aec0;
+            --glass-bg: rgba(45, 55, 72, 0.8);
+            --glass-border: rgba(74, 85, 104, 0.6);
+            --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.4);
+            --shadow-deep: 0 10px 25px rgba(0, 0, 0, 0.6);
+            --shine-color: rgba(255, 255, 255, 0.1);
         }
         
         /* --- UNIQUE THEMES (Applied as separate classes to the body) --- */
 
-        /* 1. ASMR Theme (Red, Soft/Calming) */
-        .theme-asmr {
-            --primary-accent: #ef4444; /* Red */
-        }
-        .night-mode.theme-asmr {
-             --primary-accent: #f87171; /* Lighter Red for dark mode contrast */
-        }
+        /* 1. ASMR Theme (Red, Calming) */
+        .theme-asmr { --primary-accent: #ff4545; } 
+        .night-mode.theme-asmr { --primary-accent: #ff7878; }
 
-        /* 2. Songs Theme (Violet/Electric, Dynamic) */
-        .theme-songs {
-            --primary-accent: #8b5cf6; /* Violet */
-            --card-bg: linear-gradient(145deg, #ffffff, #f3f3ff); /* Subtle gradient for card */
-        }
-        .night-mode.theme-songs {
-            --primary-accent: #c4b5fd; /* Lighter Violet */
-            --card-bg: linear-gradient(145deg, #374151, #303741); 
-        }
+        /* 2. Songs Theme (Violet/Electric) */
+        .theme-songs { --primary-accent: #a749ff; } 
+        .night-mode.theme-songs { --primary-accent: #cc99ff; }
 
-        /* 3. Podcasts Theme (Emerald Green, Bold/Professional) */
-        .theme-podcasts {
-            --primary-accent: #10b981; /* Emerald Green */
-            --text-color: #1f2937;
-        }
-        .night-mode.theme-podcasts {
-            --primary-accent: #6ee7b7; /* Lighter Green */
-        }
+        /* 3. Podcasts Theme (Emerald Green, Bold) */
+        .theme-podcasts { --primary-accent: #00b894; } 
+        .night-mode.theme-podcasts { --primary-accent: #78ffd6; }
         
-        /* 4. Study With Me Theme (Cyan/Teal, Minimal/Focus) */
-        .theme-study {
-            --primary-accent: #06b6d4; /* Cyan */
-            --text-color: #1f2937;
-            --channel-icon: #10b981; /* Secondary color for icon */
-        }
-        .night-mode.theme-study {
-            --primary-accent: #67e8f9; /* Lighter Cyan */
-        }
+        /* 4. Study With Me Theme (Cyan/Teal, Focus) */
+        .theme-study { --primary-accent: #00bcd4; } 
+        .night-mode.theme-study { --primary-accent: #76e1f0; }
 
         /* --- Global Styles --- */
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.4s ease, color 0.4s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         h1 {
-            font-weight: 800;
+            font-weight: 900;
             margin: 0;
             color: var(--primary-accent);
             transition: color 0.3s;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        /* --- Header & Controls --- */
+        /* --- Header: Glassmorphism Effect --- */
         .header {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 5%;
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px var(--shadow-light);
+            padding: 15px 5%;
+            
+            /* Glassmorphism Style */
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-deep);
+
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100; /* Increased z-index */
         }
 
         .controls {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
         }
 
-        .search-container {
-            position: relative;
+        /* Shuffle Button (NEW) */
+        #random-play-button {
+            background-color: var(--primary-accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #random-play-button:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            transform: scale(1.05) rotate(5deg);
+        }
+        
+        #random-play-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
+        /* Search Input */
         #search-input {
-            padding: 10px 15px 10px 40px;
+            padding: 10px 15px;
             border-radius: 25px;
-            border: 2px solid var(--border-color);
-            background-color: var(--bg-color);
+            border: 2px solid var(--glass-border);
+            background: var(--card-bg);
             color: var(--text-color);
             font-size: 16px;
-            width: 250px;
-            transition: border-color 0.3s, background-color 0.3s, width 0.3s;
+            width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-soft);
+            padding-left: 40px; /* Space for icon */
         }
 
         #search-input:focus {
             border-color: var(--primary-accent);
             outline: none;
-            width: 300px;
+            width: 250px;
+            box-shadow: 0 0 10px var(--primary-accent);
         }
 
+        .search-container { position: relative; }
         .search-container i {
             position: absolute;
             left: 15px;
@@ -148,25 +165,28 @@
             cursor: pointer;
             font-size: 24px;
             color: var(--secondary-text);
-            transition: color 0.3s;
+            transition: color 0.3s, transform 0.3s;
             padding: 5px;
         }
 
         .theme-toggle:hover {
             color: var(--primary-accent);
+            transform: scale(1.1);
         }
 
-        /* --- Tabs Navigation (NEW) --- */
+        /* --- Tabs Navigation: Floating / 3D Effect --- */
         .tabs {
             display: flex;
             justify-content: center;
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--glass-border);
             padding: 0 5%;
             position: sticky;
-            top: 80px; /* Below the header */
-            z-index: 9;
-            box-shadow: 0 2px 4px var(--shadow-light);
+            top: 75px; /* Below the header */
+            z-index: 90; 
+            box-shadow: var(--shadow-soft);
         }
 
         .tab-button {
@@ -177,30 +197,20 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: color 0.3s, border-bottom 0.3s, background-color 0.3s;
+            transition: all 0.3s ease;
             position: relative;
         }
 
         .tab-button:hover {
             color: var(--text-color);
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .tab-button.active {
             color: var(--primary-accent);
-            border-bottom: 3px solid var(--primary-accent);
-        }
-
-        .tab-button i {
-            margin-right: 8px;
-        }
-
-        /* --- Content Containers --- */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
+            /* Underline Effect */
+            box-shadow: inset 0 -3px 0 0 var(--primary-accent);
+            transform: translateY(-1px);
         }
 
         /* --- Video Grid --- */
@@ -211,24 +221,29 @@
             padding: 30px 5%;
         }
 
-        /* --- Video Card --- */
+        /* --- Video Card: 3D Lift and Glass Effect --- */
         .video-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
+            background: var(--card-bg);
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 4px 12px var(--shadow-light);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--glass-border); /* Subtle border for definition */
+            
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
             text-decoration: none;
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-            position: relative;
             cursor: pointer; 
+            
+            /* Initial 3D Tilt for effect */
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg); 
         }
 
         .video-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px var(--shadow-hover);
+            transform: perspective(1000px) translateY(-8px);
+            box-shadow: var(--shadow-deep);
         }
 
         /* Thumbnail */
@@ -242,28 +257,26 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.4s ease;
+            transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         .video-card:hover .card-thumbnail {
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
         
         /* Play Icon Overlay */
         .card-thumbnail-container::after {
-            content: "\f04b"; /* Play icon */
+            content: "\f04b"; 
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 40px;
-            color: white;
+            font-size: 50px;
+            color: var(--shine-color);
             opacity: 0;
-            background-color: rgba(0, 0, 0, 0.4);
-            border-radius: 50%;
-            padding: 15px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
             transition: opacity 0.3s;
         }
 
@@ -285,7 +298,7 @@
 
         /* Content */
         .card-content {
-            padding: 15px;
+            padding: 18px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -294,12 +307,13 @@
         .card-title {
             font-size: 1.15em;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.35;
             margin-bottom: 8px;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical;
+            transition: color 0.3s;
+        }
+        
+        .video-card:hover .card-title {
+             color: var(--primary-accent);
         }
 
         .card-channel {
@@ -313,7 +327,7 @@
         
         .card-channel i {
             margin-right: 5px;
-            color: var(--channel-icon); /* Uses theme-specific channel icon color */
+            color: var(--primary-accent); 
             transition: color 0.3s;
         }
 
@@ -322,42 +336,61 @@
             background-color: var(--primary-accent);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            transition: all 0.2s ease-out;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-top: auto; 
+            
+            /* Cute Button Effect */
+            box-shadow: 0 4px 0 var(--shadow-deep);
         }
 
         .copy-button i {
-            margin-right: 8px;
+            margin-right: 10px;
         }
 
         .copy-button:hover {
             opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px var(--shadow-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--shadow-deep);
+        }
+        
+        .copy-button:active {
+             transform: translateY(2px);
+             box-shadow: 0 2px 0 var(--shadow-deep);
         }
 
-        /* --- MODAL STYLES (Unchanged) --- */
+        /* Animation: Fade in cards */
+        .video-card {
+            opacity: 0;
+            animation: fadeIn 0.5s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- MODAL STYLES --- */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9); 
+            background-color: rgba(0, 0, 0, 0.95); 
             display: none; 
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2000;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
         .modal-overlay.active {
@@ -367,87 +400,50 @@
 
         .modal-content {
             position: relative;
-            background-color: transparent; 
             width: 90%;
-            max-width: 800px; 
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
+            max-width: 850px; 
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Springy transition */
         }
 
         .modal-overlay.active .modal-content {
             transform: scale(1);
         }
-
-        .video-container {
-            padding-top: 56.25%; 
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            background-color: black;
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
+        
         .modal-close-button {
-            position: absolute;
-            top: -40px;
-            right: 0px;
+            /* Positioning fix for mobile */
+            top: -50px; 
+            right: 0px; 
             background: white;
-            color: black;
-            border: none;
+            color: var(--primary-accent);
+            border: 3px solid var(--primary-accent);
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 1001;
-            transition: transform 0.2s, background-color 0.3s, color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            z-index: 2001;
         }
 
-        .modal-close-button:hover {
-            transform: rotate(90deg);
-            background-color: var(--primary-accent); /* Dynamic color on hover */
-            color: white;
-        }
 
-        .night-mode .modal-close-button {
-            background: var(--card-bg);
-            color: var(--text-color);
-        }
-
-        /* Media Queries */
+        /* Media Queries for Responsiveness */
         @media (max-width: 800px) {
             .header {
                 flex-direction: column;
-                gap: 15px;
-                padding: 15px 5%;
-                position: static; /* Header not sticky on mobile to allow tabs to scroll */
+                gap: 10px;
+                padding: 10px 5%;
+                position: static; 
             }
             .controls {
                 width: 100%;
                 justify-content: space-between;
+                order: 3; /* Push controls down on mobile */
             }
             #search-input {
-                width: 100%;
+                width: calc(100% - 70px);
                 max-width: none;
             }
-            #search-input:focus {
-                width: 100%;
-            }
             .tabs {
-                position: static; /* Tabs not sticky on mobile */
+                position: static; 
                 overflow-x: auto;
                 justify-content: flex-start;
             }
@@ -458,8 +454,23 @@
                 grid-template-columns: 1fr;
                 padding: 15px 5%;
             }
+            #random-play-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            h1 {
+                margin-bottom: 5px;
+            }
+            
             .theme-toggle {
-                margin-left: auto;
+                order: 1;
+            }
+            
+            .modal-close-button {
+                top: -45px; 
+                right: 5px; 
             }
         }
     </style>
@@ -468,6 +479,8 @@
     <div class="header">
         <h1>Video Library</h1>
         <div class="controls">
+            <button id="random-play-button" aria-label="Play Random Video"><i class="fa-solid fa-shuffle"></i></button>
+            
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="search-input" placeholder="Search current category...">
@@ -545,6 +558,7 @@
         const THEME_TOGGLE = document.getElementById('theme-toggle');
         const THEME_ICON = document.getElementById('theme-icon');
         const TABS_CONTAINER = document.getElementById('tabs-container');
+        const RANDOM_PLAY_BUTTON = document.getElementById('random-play-button'); // NEW
         const MODAL = document.getElementById('video-modal');
         const MODAL_CLOSE_BUTTON = document.getElementById('modal-close');
         const VIDEO_PLAYER = document.getElementById('video-player');
@@ -552,17 +566,16 @@
         let allData = { asmr: [], songs: [], podcasts: [], study: [] };
         let activeCategory = 'asmr'; 
 
-        // 🟢 PWA: Service Worker Registration
+        // 🟢 PWA: Service Worker Registration (unchanged)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // IMPORTANT: The path might need adjustment based on where the file is deployed
                 navigator.serviceWorker.register('/service-worker.js') 
                     .then(registration => console.log('SW registered: ', registration))
                     .catch(registrationError => console.log('SW registration failed: ', registrationError));
             });
         }
 
-        // --- MODAL UTILITIES ---
+        // --- MODAL UTILITIES (unchanged) ---
         function getVideoId(url) {
             const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
             const match = url.match(regex);
@@ -585,12 +598,25 @@
             document.body.style.overflow = 'auto'; 
         }
         
-        // --- CSV PARSING ---
-        /**
-         * Simple custom parser for CSV data.
-         * Handles titles/fields enclosed in double quotes, including embedded commas.
-         * Note: Relies on the first 5 columns being Title, Video URL, Thumbnail URL, Channel Name, Duration.
-         */
+        // --- NEW: SHUFFLE PLAY FUNCTION ---
+        function playRandomVideo() {
+            const videoList = allData[activeCategory];
+            if (!videoList || videoList.length === 0) {
+                alert(`No videos loaded for the ${activeCategory} category yet.`);
+                return;
+            }
+            
+            // 1. Generate a random index
+            const randomIndex = Math.floor(Math.random() * videoList.length);
+            
+            // 2. Get the video URL
+            const randomVideoUrl = videoList[randomIndex].videoUrl;
+            
+            // 3. Play the video using the existing modal function
+            openModal(randomVideoUrl);
+        }
+        
+        // --- CSV PARSING (unchanged) ---
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
             const data = [];
@@ -630,7 +656,7 @@
             return data;
         }
 
-        // --- DATA FETCHING ---
+        // --- DATA FETCHING (unchanged) ---
         async function fetchAllData() {
             for (const category in CATEGORIES) {
                 const { file } = CATEGORIES[category];
@@ -641,41 +667,34 @@
                     }
                     const text = await response.text();
                     allData[category] = parseCSV(text);
-                    console.log(`Loaded ${allData[category].length} videos for ${category}`);
                 } catch (error) {
                     console.error(`Error loading data for ${category}:`, error);
-                    // Display error message in the respective grid
                     GRID_CONTAINERS[category].innerHTML = `<p style="color: var(--primary-accent); text-align: center;">Error: Could not load data from '${file}'.</p>`;
                 }
             }
-            // Once all data is loaded, render the initial active tab
             renderVideos(activeCategory, allData[activeCategory]);
         }
 
-        // --- RENDERING & SWITCHING ---
+        // --- RENDERING & SWITCHING (minor update to remove old fade-in animation code) ---
         function renderVideos(category, videos) {
             const grid = GRID_CONTAINERS[category];
-            grid.innerHTML = ''; // Clear existing content
+            grid.innerHTML = ''; 
             
             videos.forEach((video, index) => {
-                const delay = index * 0.05; 
+                const delay = index * 0.03; // Faster, snappier fade-in
                 const card = TEMPLATE.content.cloneNode(true).querySelector('.video-card');
                 card.style.animationDelay = `${delay}s`;
 
-                // Event listener to open the modal
                 card.addEventListener('click', () => openModal(video.videoUrl));
 
-                // Populate elements
                 card.querySelector('[data-title]').textContent = video.title;
                 card.querySelector('[data-channel]').innerHTML = `<i class="fa-solid fa-user-astronaut"></i> ${video.channelName}`;
                 card.querySelector('[data-thumb]').src = video.thumbnailUrl;
                 card.querySelector('[data-duration]').textContent = video.duration;
 
-                // Copy URL Button logic
                 const copyButton = card.querySelector('[data-copy-url]');
                 copyButton.onclick = (e) => {
-                    e.stopPropagation(); // Prevent modal from opening
-                    
+                    e.stopPropagation(); 
                     navigator.clipboard.writeText(video.videoUrl).then(() => {
                         const originalText = copyButton.innerHTML;
                         copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
@@ -684,8 +703,6 @@
                             copyButton.innerHTML = originalText;
                             copyButton.style.backgroundColor = ''; 
                         }, 1500);
-                    }).catch(err => {
-                        console.error('Could not copy text: ', err);
                     });
                 };
 
@@ -700,31 +717,27 @@
         function switchCategory(newCategory) {
             if (activeCategory === newCategory) return;
 
-            // 1. Update active tab button
             document.querySelector(`.tab-button[data-category="${activeCategory}"]`).classList.remove('active');
             document.querySelector(`.tab-button[data-category="${newCategory}"]`).classList.add('active');
 
-            // 2. Hide old content, show new content
             document.getElementById(`content-${activeCategory}`).classList.remove('active');
             document.getElementById(`content-${newCategory}`).classList.add('active');
 
-            // 3. Update active theme on the body
             document.body.classList.remove(CATEGORIES[activeCategory].theme);
             document.body.classList.add(CATEGORIES[newCategory].theme);
             
-            // 4. Update meta theme color for PWA (if supported)
+            // Update meta theme color
             document.querySelector('meta[name="theme-color"]').setAttribute('content', getComputedStyle(document.body).getPropertyValue('--primary-accent'));
 
 
             activeCategory = newCategory;
 
-            // 5. Clear search input and re-render
             SEARCH_INPUT.value = '';
             renderVideos(activeCategory, allData[activeCategory]);
         }
 
 
-        // --- SEARCH/FILTERING ---
+        // --- SEARCH/FILTERING (unchanged) ---
         function handleSearch() {
             const query = SEARCH_INPUT.value.toLowerCase().trim();
             const videos = allData[activeCategory];
@@ -742,7 +755,7 @@
             renderVideos(activeCategory, filteredVideos);
         }
 
-        // --- THEME TOGGLE (Night/Day) ---
+        // --- THEME TOGGLE (Night/Day, unchanged) ---
         function getActiveThemeColor() {
             return getComputedStyle(document.body).getPropertyValue('--primary-accent').trim();
         }
@@ -756,7 +769,6 @@
                 document.body.classList.remove('night-mode');
                 THEME_ICON.classList.replace('fa-moon', 'fa-sun');
             }
-            // Set initial theme color for PWA
             document.querySelector('meta[name="theme-color"]').setAttribute('content', getActiveThemeColor());
         }
 
@@ -764,7 +776,6 @@
             const isNight = document.body.classList.toggle('night-mode');
             localStorage.setItem('theme', isNight ? 'night' : 'day');
             
-            // Cool icon animation
             THEME_ICON.style.transform = 'rotate(360deg)';
             THEME_ICON.style.transition = 'transform 0.4s ease-out';
             setTimeout(() => {
@@ -773,7 +784,6 @@
                 THEME_ICON.style.transform = 'rotate(0deg)';
             }, 200);
             
-            // Update meta theme color dynamically
             setTimeout(() => {
                 document.querySelector('meta[name="theme-color"]').setAttribute('content', getActiveThemeColor());
             }, 400);
@@ -787,6 +797,7 @@
             // Event Listeners
             SEARCH_INPUT.addEventListener('input', handleSearch);
             THEME_TOGGLE.addEventListener('click', toggleTheme);
+            RANDOM_PLAY_BUTTON.addEventListener('click', playRandomVideo); // NEW HOOKUP
             
             // Tab switching listeners
             TABS_CONTAINER.addEventListener('click', (e) => {
