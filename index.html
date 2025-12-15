@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Aesthetic Video Library</title>
+    <!-- 🟢 PWA: Link to the Manifest file -->
     <link rel="manifest" href="manifest.json">
+    <!-- PWA: Set Theme Color (dynamically updated by JS) -->
     <meta name="theme-color" content="#ef4444"> 
     
+    <!-- Cute Icons: Font Awesome via CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -17,7 +20,7 @@
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --secondary-text: #6b7280;
-            --primary-accent: #ff4545; /* ASMR Default */
+            --primary-accent: #ef4444; /* ASMR Default */
             
             /* Glassmorphism & Shadow Variables */
             --glass-bg: rgba(255, 255, 255, 0.7); 
@@ -61,12 +64,13 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.5s ease, color 0.5s ease;
+            overflow-x: hidden; /* Prevent horizontal scroll */
         }
 
         /* --- Header: Glassmorphism Effect --- */
         .header {
             display: flex;
-            flex-direction: column; /* Start with column layout for mobile/flexibility */
+            flex-direction: column;
             padding: 15px 5%;
             
             background: var(--glass-bg);
@@ -85,7 +89,9 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 15px; /* Added spacing */
+            flex-wrap: wrap; /* Allow wrapping on very small screens */
+            gap: 10px;
         }
         
         h1 {
@@ -93,23 +99,18 @@
             color: var(--primary-accent);
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
             transition: color 0.3s;
+            font-size: 1.5rem; /* Better mobile size */
+            margin: 0;
         }
 
-        .controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            width: 100%; /* Important for full-width search */
-        }
-        
-        /* Shuffle Button Redesign */
+        /* Shuffle Button Styling - Fixed Layout */
         #random-play-button {
             background-color: var(--primary-accent);
             color: white;
             border: none;
-            border-radius: 12px; /* Smoother corner radius */
-            padding: 10px 15px;
-            font-size: 16px;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease-out;
@@ -117,12 +118,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 15px; /* Spacing */
+            white-space: nowrap; /* Prevent text wrap */
         }
         
         #random-play-button i {
             margin-right: 8px;
-            font-size: 18px;
+            font-size: 16px;
         }
         
         #random-play-button:hover {
@@ -133,18 +134,24 @@
         #random-play-button:active {
             transform: scale(0.98);
         }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%; 
+        }
         
         /* Search Input */
         .search-container { 
             position: relative; 
-            flex-grow: 1; /* Make search take up available space */
-            margin-right: 12px; /* Space before theme toggle */
+            flex-grow: 1; 
         }
 
         #search-input {
-            width: 100%; /* Now takes full width of its container */
-            box-sizing: border-box;
-            padding: 10px 15px;
+            width: 100%; 
+            box-sizing: border-box; /* Fix padding calculation */
+            padding: 10px 15px 10px 40px; /* Fixed padding */
             border-radius: 25px;
             border: 2px solid var(--glass-border);
             background: var(--card-bg);
@@ -152,7 +159,6 @@
             font-size: 16px;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-soft);
-            padding-left: 40px; 
         }
 
         #search-input:focus {
@@ -167,112 +173,319 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--secondary-text);
+            pointer-events: none; /* Let clicks pass through to input */
         }
 
         .theme-toggle {
-            /* Styles for toggle are fine */
             background: none;
             border: none;
             cursor: pointer;
-            font-size: 24px;
+            font-size: 22px;
             color: var(--secondary-text);
             transition: color 0.3s, transform 0.3s;
-            padding: 5px;
+            padding: 8px;
+            display: flex; /* alignment fix */
+            align-items: center;
+            justify-content: center;
         }
 
-        /* --- Tabs Navigation & Video Cards (Previous aesthetic changes maintained) --- */
-
+        /* --- Tabs Navigation --- */
         .tabs {
             display: flex;
-            justify-content: center;
             background: var(--glass-bg);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-bottom: 1px solid var(--glass-border);
             padding: 0 5%;
             position: sticky;
-            top: 75px; 
+            top: 110px; /* Adjusted based on header height */
             z-index: 90; 
             box-shadow: var(--shadow-soft);
+            overflow-x: auto; /* Scroll on mobile */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+        }
+        
+        .tabs::-webkit-scrollbar { 
+            display: none; /* Hide scrollbar Chrome/Safari */ 
         }
 
+        .tab-button {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap; /* Prevent breaking lines */
+            flex-shrink: 0;
+        }
+
+        .tab-button:hover {
+            color: var(--text-color);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-button.active {
+            color: var(--primary-accent);
+            box-shadow: inset 0 -3px 0 0 var(--primary-accent);
+        }
+
+        /* --- Video Grid --- */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 25px 5%;
+        }
+
+        /* --- Video Card Styles --- */
         .video-card {
-            /* 3D Lift and Glass Effect styles maintained */
             background: var(--card-bg);
             border-radius: 18px;
             overflow: hidden;
             box-shadow: var(--shadow-soft);
             border: 1px solid var(--glass-border); 
             transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
-            transform: perspective(1000px) rotateX(0deg) rotateY(0deg); 
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            position: relative;
         }
         
         .video-card:hover {
-            transform: perspective(1000px) translateY(-8px);
+            transform: translateY(-5px); /* Simple lift, removed 3D perspective for better mobile performance */
             box-shadow: var(--shadow-deep);
         }
-        
-        .copy-button {
-            /* Cute Button Effect maintained */
-            box-shadow: 0 4px 0 var(--shadow-deep);
+
+        /* Thumbnail */
+        .card-thumbnail-container {
+            position: relative;
+            aspect-ratio: 16 / 9; 
+            overflow: hidden;
+            background-color: #000; /* Placeholder color */
+        }
+
+        .card-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .video-card:hover .card-thumbnail {
+            transform: scale(1.05);
         }
         
-        /* Media Queries for Responsiveness */
+        /* Play Icon Overlay */
+        .card-thumbnail-container::after {
+            content: "\f04b"; 
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.9);
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .video-card:hover .card-thumbnail-container::after {
+            opacity: 1;
+        }
+
+        .card-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .card-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            line-height: 1.35;
+            margin: 0 0 8px 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical;
+        }
+        
+        .video-card:hover .card-title {
+             color: var(--primary-accent);
+        }
+
+        .card-channel {
+            color: var(--secondary-text);
+            font-size: 0.9em;
+            font-weight: 500;
+            margin: 0 0 15px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-channel i {
+            margin-right: 5px;
+            color: var(--primary-accent); 
+        }
+
+        .copy-button {
+            background-color: var(--primary-accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto; 
+            width: 100%; /* Full width button */
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
+
+        .copy-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+        }
+        
+        .copy-button:active {
+             transform: translateY(2px);
+             box-shadow: 0 2px 0 rgba(0,0,0,0.1);
+        }
+
+        /* --- Content Containers --- */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95); 
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 95%;
+            max-width: 900px; 
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .video-container {
+            padding-top: 56.25%; 
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            background-color: black;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: -50px; 
+            right: 0px; 
+            background: white;
+            color: var(--primary-accent);
+            border: 2px solid var(--primary-accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            z-index: 2001;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        /* Media Queries for Desktop */
         @media (min-width: 801px) {
              .header {
-                 flex-direction: row; /* Desktop layout: row */
+                 flex-direction: row; 
                  justify-content: space-between;
                  align-items: center;
-                 padding: 20px 5%;
              }
              .title-row {
                  width: auto;
                  margin-bottom: 0;
+                 gap: 20px;
              }
              .controls {
                  width: auto;
-                 justify-content: flex-end;
              }
              .search-container {
-                margin-right: 0;
-             }
-             #search-input {
-                width: 250px;
-             }
-             #search-input:focus {
                 width: 300px;
              }
-             #random-play-button {
-                /* On desktop, keep shuffle button in its original place or a balanced position */
-                order: 3; /* Position shuffle button after search */
+             .tabs {
+                 justify-content: center;
              }
         }
         
-        @media (max-width: 800px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px 5%;
-                position: static; 
-            }
-            .title-row {
-                /* title and toggle on the left/right of the top row */
-                margin-bottom: 10px;
-            }
-            .controls {
-                order: 2; /* Controls (search/toggle) on the second row */
-                margin-bottom: 5px;
-            }
-            .search-container {
-                order: 1;
-            }
-            .theme-toggle {
-                order: 2;
-            }
-            #random-play-button {
-                order: 2; /* Shuffle button next to the title on the first row */
-                margin-left: auto; /* Push shuffle button to the right */
-            }
+        .footer-message {
+            text-align: center;
+            padding: 30px;
+            color: var(--secondary-text);
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -283,19 +496,20 @@
             <button id="random-play-button" aria-label="Play Random Video">
                 <i class="fa-solid fa-shuffle"></i> Shuffle Play
             </button>
-            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle night and day mode">
-                <i class="fa-solid fa-sun" id="theme-icon"></i>
-            </button>
         </div>
 
         <div class="controls">
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" placeholder="Search current category...">
+                <input type="text" id="search-input" placeholder="Search...">
             </div>
-            </div>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle night and day mode">
+                <i class="fa-solid fa-sun" id="theme-icon"></i>
+            </button>
+        </div>
     </div>
 
+    <!-- Tabs Navigation -->
     <nav class="tabs" id="tabs-container">
         <button class="tab-button active" data-category="asmr"><i class="fa-solid fa-cloud-moon"></i> ASMR</button>
         <button class="tab-button" data-category="songs"><i class="fa-solid fa-music"></i> Songs</button>
@@ -303,6 +517,7 @@
         <button class="tab-button" data-category="study"><i class="fa-solid fa-graduation-cap"></i> Study</button>
     </nav>
 
+    <!-- Main Content Area -->
     <main id="main-content">
         <div class="tab-content active" id="content-asmr">
             <div class="video-grid" data-grid="asmr"></div>
@@ -322,6 +537,7 @@
         <p>End of results. Powered by local CSV data.</p>
     </div>
 
+    <!-- Templates -->
     <template id="video-card-template">
         <div class="video-card">
             <div class="card-thumbnail-container">
@@ -335,6 +551,8 @@
             </div>
         </div>
     </template>
+    
+    <!-- Modal -->
     <div id="video-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close-button" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
@@ -346,19 +564,25 @@
 
 
     <script>
-        // --- CONSTANTS ---
-        const CATEGORIES = {
+        // --- DATA CONTAINERS ---
+        // Storing all data in memory
+        const allData = {
+            asmr: [],
+            songs: [],
+            podcasts: [],
+            study: []
+        };
+        
+        let activeCategory = 'asmr';
+        
+        const CATEGORY_CONFIG = {
             'asmr': { file: 'asmr.csv', theme: 'theme-asmr' },
             'songs': { file: 'Songs 2023.csv', theme: 'theme-songs' },
             'podcasts': { file: 'Podcasts.csv', theme: 'theme-podcasts' },
             'study': { file: 'studywithme.csv', theme: 'theme-study' }
         };
-        const GRID_CONTAINERS = {};
-        Object.keys(CATEGORIES).forEach(cat => {
-            GRID_CONTAINERS[cat] = document.querySelector(`[data-grid="${cat}"]`);
-        });
 
-        const TEMPLATE = document.getElementById('video-card-template');
+        // DOM Elements
         const SEARCH_INPUT = document.getElementById('search-input');
         const THEME_TOGGLE = document.getElementById('theme-toggle');
         const THEME_ICON = document.getElementById('theme-icon');
@@ -367,82 +591,30 @@
         const MODAL = document.getElementById('video-modal');
         const MODAL_CLOSE_BUTTON = document.getElementById('modal-close');
         const VIDEO_PLAYER = document.getElementById('video-player');
-        
-        let allData = { asmr: [], songs: [], podcasts: [], study: [] };
-        let activeCategory = 'asmr'; 
+        const TEMPLATE = document.getElementById('video-card-template');
 
-        // 🟢 PWA: Service Worker Registration (unchanged)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Ensure service worker is registered
-                navigator.serviceWorker.register('/service-worker.js') 
-                    .catch(registrationError => console.error('SW registration failed: ', registrationError));
-            });
-        }
-
-        // --- MODAL UTILITIES (unchanged) ---
-        function getVideoId(url) {
-            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-            const match = url.match(regex);
-            return match ? match[1] : null;
-        }
-
-        function openModal(videoUrl) {
-            const videoId = getVideoId(videoUrl);
-            if (!videoId) return;
-            
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-            VIDEO_PLAYER.src = embedUrl;
-            MODAL.classList.add('active');
-            document.body.style.overflow = 'hidden'; 
-        }
-
-        function closeModal() {
-            VIDEO_PLAYER.src = ''; 
-            MODAL.classList.remove('active');
-            document.body.style.overflow = 'auto'; 
-        }
-        
-        // --- SHUFFLE PLAY FUNCTION (unchanged logic) ---
-        function playRandomVideo() {
-            const videoList = allData[activeCategory];
-            if (!videoList || videoList.length === 0) {
-                alert(`No videos loaded for the ${activeCategory} category.`);
-                return;
-            }
-            
-            const randomIndex = Math.floor(Math.random() * videoList.length);
-            const randomVideoUrl = videoList[randomIndex].videoUrl;
-            
-            openModal(randomVideoUrl);
-        }
-        
-        // --- CSV PARSING (unchanged) ---
+        // --- CSV PARSING ---
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
             const data = [];
-            // ... parsing logic (omitted for brevity)
+            // Assuming header is row 0
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i].trim();
                 if (!row) continue;
 
-                const fields = [];
-                let currentField = '';
-                let inQuote = false;
-
-                for (let j = 0; j < row.length; j++) {
-                    const char = row[j];
-
-                    if (char === '"') {
-                        inQuote = !inQuote;
-                    } else if (char === ',' && !inQuote) {
-                        fields.push(currentField.trim());
-                        currentField = '';
-                    } else {
-                        currentField += char;
+                // Robust regex for CSV splitting including quoted fields
+                const regex = /(?:^|,)(?=(?:[^"]|"[^"]*")*$)/g;
+                const rawFields = row.split(regex);
+                
+                // Clean quotes
+                const fields = rawFields.map(field => {
+                    let cleaned = field.trim();
+                    if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+                        cleaned = cleaned.substring(1, cleaned.length - 1);
                     }
-                }
-                fields.push(currentField.trim());
+                    if (cleaned.startsWith(',')) cleaned = cleaned.substring(1); // occasional split artifact
+                    return cleaned.trim();
+                });
 
                 if (fields.length >= 5) {
                     data.push({
@@ -457,192 +629,192 @@
             return data;
         }
 
-        // --- DATA FETCHING (FIXED/REFINED) ---
-        async function fetchAllData() {
-            const promises = [];
+        // --- STRICT DATA FETCHING ---
+        // We load each file individually to ensure no data crossover
+        async function loadData() {
+            // Load ASMR
+            try {
+                const res = await fetch('asmr.csv');
+                if(res.ok) allData.asmr = parseCSV(await res.text());
+                else console.error("Failed to load asmr.csv");
+            } catch(e) { console.error(e); }
+
+            // Load Songs
+            try {
+                const res = await fetch('Songs 2023.csv');
+                if(res.ok) allData.songs = parseCSV(await res.text());
+                else console.error("Failed to load Songs 2023.csv");
+            } catch(e) { console.error(e); }
             
-            for (const category in CATEGORIES) {
-                const { file } = CATEGORIES[category];
-                
-                // Use .then() to ensure the assignment happens only after the fetch is complete
-                const fetchPromise = fetch(file)
-                    .then(response => {
-                        if (!response.ok) {
-                             // Throw error if file not found, this is the most likely cause of the prior bug
-                            throw new Error(`Failed to load ${file}: ${response.statusText} (${response.status})`);
-                        }
-                        return response.text();
-                    })
-                    .then(text => {
-                        // Crucially, assign data to the correct, non-loop variable key
-                        allData[category] = parseCSV(text);
-                    })
-                    .catch(error => {
-                        console.error(`Error loading data for ${category} from ${file}:`, error);
-                        GRID_CONTAINERS[category].innerHTML = `<p style="color: var(--primary-accent); text-align: center;">Error: Could not load data from '${file}'. Please check file name/path and try clearing your browser cache.</p>`;
-                    });
-                
-                promises.push(fetchPromise);
-            }
-            
-            // Wait for all fetches to complete before rendering the UI
-            await Promise.all(promises);
-            
-            // Render the initial active category now that all data is loaded
+            // Load Podcasts
+            try {
+                const res = await fetch('Podcasts.csv');
+                if(res.ok) allData.podcasts = parseCSV(await res.text());
+                else console.error("Failed to load Podcasts.csv");
+            } catch(e) { console.error(e); }
+
+            // Load Study
+            try {
+                const res = await fetch('studywithme.csv');
+                if(res.ok) allData.study = parseCSV(await res.text());
+                else console.error("Failed to load studywithme.csv");
+            } catch(e) { console.error(e); }
+
+            // Initial Render
             renderVideos(activeCategory, allData[activeCategory]);
         }
 
-        // --- RENDERING & SWITCHING (unchanged) ---
+        // --- RENDERING ---
         function renderVideos(category, videos) {
-            const grid = GRID_CONTAINERS[category];
-            grid.innerHTML = ''; 
+            const grid = document.querySelector(`[data-grid="${category}"]`);
+            grid.innerHTML = '';
             
-            // Ensure videos array exists before attempting to render
             if (!videos || videos.length === 0) {
-                 grid.innerHTML = `<p style="text-align: center; width: 100%; color: var(--secondary-text);">No videos found for this category.</p>`;
-                 return;
+                grid.innerHTML = '<p style="text-align:center; width:100%; color:var(--secondary-text)">No videos found or loading...</p>';
+                return;
             }
-            
-            // ... rest of the rendering logic
+
             videos.forEach((video, index) => {
-                const delay = index * 0.03; 
-                const card = TEMPLATE.content.cloneNode(true).querySelector('.video-card');
-                card.style.animationDelay = `${delay}s`;
-
-                card.addEventListener('click', () => openModal(video.videoUrl));
-
+                const clone = TEMPLATE.content.cloneNode(true);
+                const card = clone.querySelector('.video-card');
+                
+                // Content
                 card.querySelector('[data-title]').textContent = video.title;
                 card.querySelector('[data-channel]').innerHTML = `<i class="fa-solid fa-user-astronaut"></i> ${video.channelName}`;
-                card.querySelector('[data-thumb]').src = video.thumbnailUrl;
+                const thumb = card.querySelector('[data-thumb]');
+                thumb.src = video.thumbnailUrl;
+                thumb.onerror = () => { thumb.src = 'https://via.placeholder.com/320x180?text=No+Thumbnail'; };
                 card.querySelector('[data-duration]').textContent = video.duration;
 
-                const copyButton = card.querySelector('[data-copy-url]');
-                copyButton.onclick = (e) => {
-                    e.stopPropagation(); 
-                    navigator.clipboard.writeText(video.videoUrl).then(() => {
-                        const originalText = copyButton.innerHTML;
-                        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                        copyButton.style.backgroundColor = 'green';
-                        setTimeout(() => {
-                            copyButton.innerHTML = originalText;
-                            copyButton.style.backgroundColor = ''; 
-                        }, 1500);
-                    });
+                // Click to play
+                card.onclick = () => openModal(video.videoUrl);
+
+                // Copy Button
+                const copyBtn = card.querySelector('[data-copy-url]');
+                copyBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(video.videoUrl);
+                    const originalHTML = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                    copyBtn.style.backgroundColor = '#10b981';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalHTML;
+                        copyBtn.style.backgroundColor = '';
+                    }, 1500);
                 };
 
                 grid.appendChild(card);
             });
-            
-            if (videos.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; width: 100%; color: var(--secondary-text);">No videos found matching your search criteria.</p>';
-            }
         }
-        
-        function switchCategory(newCategory) {
-            if (activeCategory === newCategory) return;
 
+        // --- TAB SWITCHING ---
+        function switchCategory(newCat) {
+            if (activeCategory === newCat) return;
+            
+            // UI Updates
             document.querySelector(`.tab-button[data-category="${activeCategory}"]`).classList.remove('active');
-            document.querySelector(`.tab-button[data-category="${newCategory}"]`).classList.add('active');
-
+            document.querySelector(`.tab-button[data-category="${newCat}"]`).classList.add('active');
+            
             document.getElementById(`content-${activeCategory}`).classList.remove('active');
-            document.getElementById(`content-${newCategory}`).classList.add('active');
-
-            document.body.classList.remove(CATEGORIES[activeCategory].theme);
-            document.body.classList.add(CATEGORIES[newCategory].theme);
+            document.getElementById(`content-${newCat}`).classList.add('active');
             
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', getComputedStyle(document.body).getPropertyValue('--primary-accent'));
+            document.body.classList.remove(CATEGORY_CONFIG[activeCategory].theme);
+            document.body.classList.add(CATEGORY_CONFIG[newCat].theme);
 
-
-            activeCategory = newCategory;
-
+            // State Update
+            activeCategory = newCat;
             SEARCH_INPUT.value = '';
+            
+            // Render
             renderVideos(activeCategory, allData[activeCategory]);
+            
+            // Theme Color Meta
+            const color = getComputedStyle(document.body).getPropertyValue('--primary-accent');
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', color.trim());
         }
 
-        // --- Remaining functions (handleSearch, initTheme, toggleTheme) are unchanged. ---
+        // --- SHUFFLE ---
+        function playRandomVideo() {
+            const list = allData[activeCategory];
+            if (!list || list.length === 0) return alert("No videos to shuffle!");
+            const randomVid = list[Math.floor(Math.random() * list.length)];
+            openModal(randomVid.videoUrl);
+        }
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-            fetchAllData();
-            
-            // Event Listeners
-            SEARCH_INPUT.addEventListener('input', handleSearch);
-            THEME_TOGGLE.addEventListener('click', toggleTheme);
-            RANDOM_PLAY_BUTTON.addEventListener('click', playRandomVideo);
-            
-            // Tab switching listeners
-            TABS_CONTAINER.addEventListener('click', (e) => {
-                const button = e.target.closest('.tab-button');
-                if (button) {
-                    switchCategory(button.dataset.category);
-                }
-            });
-
-            // Modal Close Listeners
-            MODAL_CLOSE_BUTTON.addEventListener('click', closeModal);
-            MODAL.addEventListener('click', (e) => {
-                if (e.target === MODAL) {
-                    closeModal();
-                }
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && MODAL.classList.contains('active')) {
-                    closeModal();
-                }
-            });
-        });
-
-        // Search logic (omitted for brevity)
+        // --- SEARCH ---
         function handleSearch() {
-            const query = SEARCH_INPUT.value.toLowerCase().trim();
-            const videos = allData[activeCategory];
-            
-            if (!query) {
-                renderVideos(activeCategory, videos);
-                return;
-            }
-
-            const filteredVideos = videos.filter(video => 
-                video.title.toLowerCase().includes(query) ||
-                video.channelName.toLowerCase().includes(query)
+            const query = SEARCH_INPUT.value.toLowerCase();
+            const list = allData[activeCategory];
+            const filtered = list.filter(v => 
+                v.title.toLowerCase().includes(query) || 
+                v.channelName.toLowerCase().includes(query)
             );
+            renderVideos(activeCategory, filtered);
+        }
 
-            renderVideos(activeCategory, filteredVideos);
-        }
-        
-        // Theme logic (omitted for brevity)
-        function getActiveThemeColor() {
-            return getComputedStyle(document.body).getPropertyValue('--primary-accent').trim();
-        }
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'night' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.body.classList.add('night-mode');
-                THEME_ICON.classList.replace('fa-sun', 'fa-moon');
-            } else {
-                document.body.classList.remove('night-mode');
-                THEME_ICON.classList.replace('fa-moon', 'fa-sun');
+        // --- MODAL ---
+        function openModal(url) {
+            let videoId = null;
+            if (url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
+            else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1];
+            
+            if (videoId) {
+                VIDEO_PLAYER.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                MODAL.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', getActiveThemeColor());
-        }
-        function toggleTheme() {
-            const isNight = document.body.classList.toggle('night-mode');
-            localStorage.setItem('theme', isNight ? 'night' : 'day');
-            
-            THEME_ICON.style.transform = 'rotate(360deg)';
-            THEME_ICON.style.transition = 'transform 0.4s ease-out';
-            setTimeout(() => {
-                THEME_ICON.classList.toggle('fa-sun', !isNight);
-                THEME_ICON.classList.toggle('fa-moon', isNight);
-                THEME_ICON.style.transform = 'rotate(0deg)';
-            }, 200);
-            
-            setTimeout(() => {
-                document.querySelector('meta[name="theme-color"]').setAttribute('content', getActiveThemeColor());
-            }, 400);
         }
 
+        function closeModal() {
+            VIDEO_PLAYER.src = '';
+            MODAL.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // --- THEME ---
+        function initTheme() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'night') {
+                document.body.classList.add('night-mode');
+                THEME_ICON.className = 'fa-solid fa-moon';
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('night-mode');
+            const isNight = document.body.classList.contains('night-mode');
+            localStorage.setItem('theme', isNight ? 'night' : 'day');
+            THEME_ICON.className = isNight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            
+            // Update Meta
+            setTimeout(() => {
+                 const color = getComputedStyle(document.body).getPropertyValue('--primary-accent');
+                 document.querySelector('meta[name="theme-color"]').setAttribute('content', color.trim());
+            }, 100);
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadData();
+            
+            TABS_CONTAINER.onclick = (e) => {
+                const btn = e.target.closest('.tab-button');
+                if (btn) switchCategory(btn.dataset.category);
+            };
+            
+            SEARCH_INPUT.oninput = handleSearch;
+            RANDOM_PLAY_BUTTON.onclick = playRandomVideo;
+            THEME_TOGGLE.onclick = toggleTheme;
+            
+            MODAL_CLOSE_BUTTON.onclick = closeModal;
+            MODAL.onclick = (e) => { if(e.target === MODAL) closeModal(); };
+            
+            // Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js').catch(console.error);
+            }
+        });
     </script>
 </body>
 </html>
