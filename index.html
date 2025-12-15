@@ -132,6 +132,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            cursor: pointer; /* Indicate it's clickable */
         }
 
         .video-card:hover {
@@ -251,6 +252,88 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* --- MODAL STYLES (NEW) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); /* Dark overlay */
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: transparent; /* Make content background transparent to only show video */
+            width: 90%;
+            max-width: 800px; 
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .video-container {
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            background-color: black;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: -40px;
+            right: 0px;
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close-button:hover {
+            transform: rotate(90deg);
+            background-color: var(--primary-accent);
+            color: white;
+        }
+
+        .night-mode .modal-close-button {
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
         /* Media Queries for Responsiveness */
         @media (max-width: 600px) {
             .header {
@@ -301,7 +384,7 @@
     </div>
 
     <template id="video-card-template">
-        <a href="#" target="_blank" class="video-card">
+        <div class="video-card">
             <div class="card-thumbnail-container">
                 <img src="" alt="Video thumbnail" class="card-thumbnail" data-thumb>
                 <span class="card-duration" data-duration></span>
@@ -311,8 +394,17 @@
                 <p class="card-channel" data-channel><i class="fa-solid fa-user-astronaut"></i></p>
                 <button class="copy-button" type="button" data-copy-url><i class="fa-solid fa-link"></i> Copy URL</button>
             </div>
-        </a>
+        </div>
     </template>
+
+    <div id="video-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
+            <div class="video-container">
+                <iframe id="video-player" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 
     <script>
         // --- CONSTANTS ---
@@ -323,16 +415,57 @@
         const THEME_TOGGLE = document.getElementById('theme-toggle');
         const THEME_ICON = document.getElementById('theme-icon');
         
+        // Modal elements
+        const MODAL = document.getElementById('video-modal');
+        const MODAL_CLOSE_BUTTON = document.getElementById('modal-close');
+        const VIDEO_PLAYER = document.getElementById('video-player');
+
         let allVideos = [];
 
-        // --- CSV PARSING (A simple, robust parser for this specific format) ---
+        // --- UTILITY FUNCTIONS (NEW) ---
         /**
-         * Simple custom parser for CSV data.
-         * Handles titles/fields enclosed in double quotes, including embedded commas.
+         * Extracts the YouTube video ID from a standard URL.
+         * @param {string} url - The full YouTube video URL.
+         * @returns {string|null} The video ID (e.g., 'm32X0PHKkno').
          */
+        function getVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        /**
+         * Opens the video modal and loads the video.
+         * @param {string} videoUrl - The full YouTube video URL.
+         */
+        function openModal(videoUrl) {
+            const videoId = getVideoId(videoUrl);
+            if (!videoId) {
+                console.error("Invalid YouTube URL:", videoUrl);
+                return;
+            }
+            
+            // Construct the embed URL with autoplay
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            
+            VIDEO_PLAYER.src = embedUrl;
+            MODAL.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+        }
+
+        /**
+         * Closes the video modal and stops the video.
+         */
+        function closeModal() {
+            // Stop the video by clearing the iframe src
+            VIDEO_PLAYER.src = ''; 
+            MODAL.classList.remove('active');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // --- CSV PARSING (A simple, robust parser for this specific format) ---
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
-            // Assuming the first row is the header, but we'll hardcode the known columns for safety
             const data = [];
 
             for (let i = 1; i < rows.length; i++) {
@@ -347,22 +480,16 @@
                     const char = row[j];
 
                     if (char === '"') {
-                        // Toggle inQuote state
                         inQuote = !inQuote;
-                        // Skip adding the quote character to the field content
                     } else if (char === ',' && !inQuote) {
-                        // End of a field
                         fields.push(currentField.trim());
                         currentField = '';
                     } else {
-                        // Append character to current field
                         currentField += char;
                     }
                 }
-                // Add the last field
                 fields.push(currentField.trim());
 
-                // Structure the data based on known column order (Title, Video url, Thumbnail url, Channel name, Duration)
                 if (fields.length === 5) {
                     data.push({
                         title: fields[0],
@@ -397,14 +524,14 @@
             GRID.innerHTML = '';
             
             videos.forEach((video, index) => {
-                // Set an animation delay for a staggered, cool animation
                 const delay = index * 0.05; 
                 
+                // Note: Card is now a DIV in the template
                 const card = TEMPLATE.content.cloneNode(true).querySelector('.video-card');
                 card.style.animationDelay = `${delay}s`;
 
-                // Set primary link
-                card.href = video.videoUrl;
+                // Set event listener to open the modal
+                card.addEventListener('click', () => openModal(video.videoUrl));
 
                 // Populate elements
                 card.querySelector('[data-title]').textContent = video.title;
@@ -415,9 +542,8 @@
                 // Copy URL Button logic
                 const copyButton = card.querySelector('[data-copy-url]');
                 copyButton.onclick = (e) => {
-                    e.preventDefault(); // Stop the card from linking
-                    e.stopPropagation(); // Stop click from propagating to the link
-
+                    e.stopPropagation(); // Stop click from propagating to the card (which would open the modal)
+                    
                     navigator.clipboard.writeText(video.videoUrl).then(() => {
                         const originalText = copyButton.innerHTML;
                         copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
@@ -489,6 +615,21 @@
             // Event Listeners
             SEARCH_INPUT.addEventListener('input', handleSearch);
             THEME_TOGGLE.addEventListener('click', toggleTheme);
+
+            // Modal Close Listeners (NEW)
+            MODAL_CLOSE_BUTTON.addEventListener('click', closeModal);
+            // Close when clicking outside the video container
+            MODAL.addEventListener('click', (e) => {
+                if (e.target === MODAL) {
+                    closeModal();
+                }
+            });
+            // Close on 'Escape' key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && MODAL.classList.contains('active')) {
+                    closeModal();
+                }
+            });
         });
     </script>
 
