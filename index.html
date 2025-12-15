@@ -3,36 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASMR Library App</title>
+    <title>Multi-Category Video App</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ef4444"> 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* --- CSS Variables for Theme & Colors --- */
+        /* --- CORE THEME VARIABLES --- */
         :root {
-            /* Day Mode */
+            /* Fallback/Base Day Mode */
             --bg-color: #f7f9fc;
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --secondary-text: #6b7280;
-            --primary-accent: #ef4444; /* Red, like YouTube */
             --shadow-light: rgba(0, 0, 0, 0.1);
             --shadow-hover: rgba(0, 0, 0, 0.15);
             --border-color: #e5e7eb;
+            --primary-accent: #ef4444; /* ASMR Default */
+            --channel-icon: var(--primary-accent);
         }
 
-        /* Night Mode Overrides */
+        /* Night Mode Overrides (Applied to the body) */
         .night-mode {
             --bg-color: #1f2937;
             --card-bg: #374151;
             --text-color: #f3f4f6;
             --secondary-text: #9ca3af;
-            --primary-accent: #60a5fa; /* A cool blue for night mode accent */
             --shadow-light: rgba(255, 255, 255, 0.05);
             --shadow-hover: rgba(255, 255, 255, 0.1);
             --border-color: #4b5563;
+            /* Primary accent is handled by the specific theme class below */
+        }
+        
+        /* --- UNIQUE THEMES (Applied as separate classes to the body) --- */
+
+        /* 1. ASMR Theme (Red, Soft/Calming) */
+        .theme-asmr {
+            --primary-accent: #ef4444; /* Red */
+        }
+        .night-mode.theme-asmr {
+             --primary-accent: #f87171; /* Lighter Red for dark mode contrast */
+        }
+
+        /* 2. Songs Theme (Violet/Electric, Dynamic) */
+        .theme-songs {
+            --primary-accent: #8b5cf6; /* Violet */
+            --card-bg: linear-gradient(145deg, #ffffff, #f3f3ff); /* Subtle gradient for card */
+        }
+        .night-mode.theme-songs {
+            --primary-accent: #c4b5fd; /* Lighter Violet */
+            --card-bg: linear-gradient(145deg, #374151, #303741); 
+        }
+
+        /* 3. Podcasts Theme (Emerald Green, Bold/Professional) */
+        .theme-podcasts {
+            --primary-accent: #10b981; /* Emerald Green */
+            --text-color: #1f2937;
+        }
+        .night-mode.theme-podcasts {
+            --primary-accent: #6ee7b7; /* Lighter Green */
+        }
+        
+        /* 4. Study With Me Theme (Cyan/Teal, Minimal/Focus) */
+        .theme-study {
+            --primary-accent: #06b6d4; /* Cyan */
+            --text-color: #1f2937;
+            --channel-icon: #10b981; /* Secondary color for icon */
+        }
+        .night-mode.theme-study {
+            --primary-accent: #67e8f9; /* Lighter Cyan */
         }
 
         /* --- Global Styles --- */
@@ -49,6 +89,7 @@
             font-weight: 800;
             margin: 0;
             color: var(--primary-accent);
+            transition: color 0.3s;
         }
 
         /* --- Header & Controls --- */
@@ -115,15 +156,62 @@
             color: var(--primary-accent);
         }
 
+        /* --- Tabs Navigation (NEW) --- */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 5%;
+            position: sticky;
+            top: 80px; /* Below the header */
+            z-index: 9;
+            box-shadow: 0 2px 4px var(--shadow-light);
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: color 0.3s, border-bottom 0.3s, background-color 0.3s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: var(--text-color);
+        }
+
+        .tab-button.active {
+            color: var(--primary-accent);
+            border-bottom: 3px solid var(--primary-accent);
+        }
+
+        .tab-button i {
+            margin-right: 8px;
+        }
+
+        /* --- Content Containers --- */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* --- Video Grid --- */
-        #video-grid {
+        .video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 30px;
             padding: 30px 5%;
         }
 
-        /* --- Video Card (The Aesthetic Part) --- */
+        /* --- Video Card --- */
         .video-card {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -146,7 +234,7 @@
         /* Thumbnail */
         .card-thumbnail-container {
             position: relative;
-            aspect-ratio: 16 / 9; /* Standard YouTube ratio */
+            aspect-ratio: 16 / 9; 
             overflow: hidden;
         }
 
@@ -159,6 +247,28 @@
 
         .video-card:hover .card-thumbnail {
             transform: scale(1.05);
+        }
+        
+        /* Play Icon Overlay */
+        .card-thumbnail-container::after {
+            content: "\f04b"; /* Play icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: white;
+            opacity: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            padding: 15px;
+            transition: opacity 0.3s;
+        }
+
+        .video-card:hover .card-thumbnail-container::after {
+            opacity: 1;
         }
 
         .card-duration {
@@ -188,7 +298,7 @@
             margin-bottom: 8px;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Limit title to 2 lines */
+            -webkit-line-clamp: 2; 
             -webkit-box-orient: vertical;
         }
 
@@ -203,7 +313,8 @@
         
         .card-channel i {
             margin-right: 5px;
-            color: var(--primary-accent);
+            color: var(--channel-icon); /* Uses theme-specific channel icon color */
+            transition: color 0.3s;
         }
 
         /* Button */
@@ -220,7 +331,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: auto; /* Push button to the bottom */
+            margin-top: auto; 
         }
 
         .copy-button i {
@@ -228,42 +339,20 @@
         }
 
         .copy-button:hover {
-            background-color: #c22b2b; /* Darker red */
+            opacity: 0.9;
             transform: translateY(-1px);
             box-shadow: 0 2px 4px var(--shadow-hover);
         }
 
-        .copy-button:active {
-            transform: translateY(0);
-        }
-
-        /* Footer Message */
-        .footer-message {
-            text-align: center;
-            padding: 20px;
-            color: var(--secondary-text);
-        }
-        
-        /* Animation: Fade in cards */
-        .video-card {
-            opacity: 0;
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- MODAL STYLES --- */
+        /* --- MODAL STYLES (Unchanged) --- */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9); /* Dark overlay */
-            display: none; /* Hidden by default */
+            background-color: rgba(0, 0, 0, 0.9); 
+            display: none; 
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -290,10 +379,11 @@
         }
 
         .video-container {
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            padding-top: 56.25%; 
             position: relative;
             overflow: hidden;
             border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
             background-color: black;
         }
 
@@ -320,7 +410,7 @@
             cursor: pointer;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             z-index: 1001;
-            transition: transform 0.2s;
+            transition: transform 0.2s, background-color 0.3s, color 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -328,7 +418,7 @@
 
         .modal-close-button:hover {
             transform: rotate(90deg);
-            background-color: var(--primary-accent);
+            background-color: var(--primary-accent); /* Dynamic color on hover */
             color: white;
         }
 
@@ -337,12 +427,13 @@
             color: var(--text-color);
         }
 
-        /* Media Queries for Responsiveness */
-        @media (max-width: 600px) {
+        /* Media Queries */
+        @media (max-width: 800px) {
             .header {
                 flex-direction: column;
                 gap: 15px;
                 padding: 15px 5%;
+                position: static; /* Header not sticky on mobile to allow tabs to scroll */
             }
             .controls {
                 width: 100%;
@@ -355,7 +446,15 @@
             #search-input:focus {
                 width: 100%;
             }
-            #video-grid {
+            .tabs {
+                position: static; /* Tabs not sticky on mobile */
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+            .tab-button {
+                flex-shrink: 0;
+            }
+            .video-grid {
                 grid-template-columns: 1fr;
                 padding: 15px 5%;
             }
@@ -365,14 +464,13 @@
         }
     </style>
 </head>
-<body>
-
+<body class="theme-asmr">
     <div class="header">
-        <h1>ASMR App</h1>
+        <h1>Video Library</h1>
         <div class="controls">
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="search-input" placeholder="Search title or channel...">
+                <input type="text" id="search-input" placeholder="Search current category...">
             </div>
             <button id="theme-toggle" class="theme-toggle" aria-label="Toggle night and day mode">
                 <i class="fa-solid fa-sun" id="theme-icon"></i>
@@ -380,7 +478,27 @@
         </div>
     </div>
 
-    <main id="video-grid"></main>
+    <nav class="tabs" id="tabs-container">
+        <button class="tab-button active" data-category="asmr"><i class="fa-solid fa-cloud-moon"></i> ASMR</button>
+        <button class="tab-button" data-category="songs"><i class="fa-solid fa-music"></i> Songs</button>
+        <button class="tab-button" data-category="podcasts"><i class="fa-solid fa-microphone"></i> Podcasts</button>
+        <button class="tab-button" data-category="study"><i class="fa-solid fa-graduation-cap"></i> Study</button>
+    </nav>
+
+    <main id="main-content">
+        <div class="tab-content active" id="content-asmr">
+            <div class="video-grid" data-grid="asmr"></div>
+        </div>
+        <div class="tab-content" id="content-songs">
+            <div class="video-grid" data-grid="songs"></div>
+        </div>
+        <div class="tab-content" id="content-podcasts">
+            <div class="video-grid" data-grid="podcasts"></div>
+        </div>
+        <div class="tab-content" id="content-study">
+            <div class="video-grid" data-grid="study"></div>
+        </div>
+    </main>
     
     <div class="footer-message">
         <p>End of results. Powered by local CSV data.</p>
@@ -410,35 +528,41 @@
     </div>
 
     <script>
-        // 🟢 PWA: Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-        
         // --- CONSTANTS ---
-        const CSV_FILE = 'asmr.csv';
-        const GRID = document.getElementById('video-grid');
+        const CATEGORIES = {
+            'asmr': { file: 'asmr.csv', theme: 'theme-asmr' },
+            'songs': { file: 'Songs 2023.csv', theme: 'theme-songs' },
+            'podcasts': { file: 'Podcasts.csv', theme: 'theme-podcasts' },
+            'study': { file: 'studywithme.csv', theme: 'theme-study' }
+        };
+        const GRID_CONTAINERS = {};
+        Object.keys(CATEGORIES).forEach(cat => {
+            GRID_CONTAINERS[cat] = document.querySelector(`[data-grid="${cat}"]`);
+        });
+
         const TEMPLATE = document.getElementById('video-card-template');
         const SEARCH_INPUT = document.getElementById('search-input');
         const THEME_TOGGLE = document.getElementById('theme-toggle');
         const THEME_ICON = document.getElementById('theme-icon');
-        
-        // Modal elements
+        const TABS_CONTAINER = document.getElementById('tabs-container');
         const MODAL = document.getElementById('video-modal');
         const MODAL_CLOSE_BUTTON = document.getElementById('modal-close');
         const VIDEO_PLAYER = document.getElementById('video-player');
+        
+        let allData = { asmr: [], songs: [], podcasts: [], study: [] };
+        let activeCategory = 'asmr'; 
 
-        let allVideos = [];
+        // 🟢 PWA: Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // IMPORTANT: The path might need adjustment based on where the file is deployed
+                navigator.serviceWorker.register('/service-worker.js') 
+                    .then(registration => console.log('SW registered: ', registration))
+                    .catch(registrationError => console.log('SW registration failed: ', registrationError));
+            });
+        }
 
-        // --- UTILITY FUNCTIONS ---
+        // --- MODAL UTILITIES ---
         function getVideoId(url) {
             const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
             const match = url.match(regex);
@@ -450,7 +574,6 @@
             if (!videoId) return;
             
             const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-            
             VIDEO_PLAYER.src = embedUrl;
             MODAL.classList.add('active');
             document.body.style.overflow = 'hidden'; 
@@ -461,8 +584,13 @@
             MODAL.classList.remove('active');
             document.body.style.overflow = 'auto'; 
         }
-
+        
         // --- CSV PARSING ---
+        /**
+         * Simple custom parser for CSV data.
+         * Handles titles/fields enclosed in double quotes, including embedded commas.
+         * Note: Relies on the first 5 columns being Title, Video URL, Thumbnail URL, Channel Name, Duration.
+         */
         function parseCSV(text) {
             const rows = text.split(/\r?\n/);
             const data = [];
@@ -489,7 +617,7 @@
                 }
                 fields.push(currentField.trim());
 
-                if (fields.length === 5) {
+                if (fields.length >= 5) {
                     data.push({
                         title: fields[0],
                         videoUrl: fields[1],
@@ -503,24 +631,31 @@
         }
 
         // --- DATA FETCHING ---
-        async function fetchCSV() {
-            try {
-                const response = await fetch(CSV_FILE);
-                if (!response.ok) {
-                    throw new Error(`Failed to load ${CSV_FILE}: ${response.statusText}`);
+        async function fetchAllData() {
+            for (const category in CATEGORIES) {
+                const { file } = CATEGORIES[category];
+                try {
+                    const response = await fetch(file);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${file}: ${response.statusText}`);
+                    }
+                    const text = await response.text();
+                    allData[category] = parseCSV(text);
+                    console.log(`Loaded ${allData[category].length} videos for ${category}`);
+                } catch (error) {
+                    console.error(`Error loading data for ${category}:`, error);
+                    // Display error message in the respective grid
+                    GRID_CONTAINERS[category].innerHTML = `<p style="color: var(--primary-accent); text-align: center;">Error: Could not load data from '${file}'.</p>`;
                 }
-                const text = await response.text();
-                allVideos = parseCSV(text);
-                renderVideos(allVideos);
-            } catch (error) {
-                console.error("Error fetching or parsing CSV:", error);
-                GRID.innerHTML = `<p style="color: var(--primary-accent); text-align: center;">Error: Could not load video data. Is '${CSV_FILE}' in the correct location?</p>`;
             }
+            // Once all data is loaded, render the initial active tab
+            renderVideos(activeCategory, allData[activeCategory]);
         }
 
-        // --- RENDERING & EVENT HANDLERS ---
-        function renderVideos(videos) {
-            GRID.innerHTML = '';
+        // --- RENDERING & SWITCHING ---
+        function renderVideos(category, videos) {
+            const grid = GRID_CONTAINERS[category];
+            grid.innerHTML = ''; // Clear existing content
             
             videos.forEach((video, index) => {
                 const delay = index * 0.05; 
@@ -554,30 +689,64 @@
                     });
                 };
 
-                GRID.appendChild(card);
+                grid.appendChild(card);
             });
             
             if (videos.length === 0) {
-                GRID.innerHTML = '<p style="text-align: center; width: 100%; color: var(--secondary-text);">No videos found matching your search criteria.</p>';
+                grid.innerHTML = '<p style="text-align: center; width: 100%; color: var(--secondary-text);">No videos found matching your search criteria.</p>';
             }
         }
+        
+        function switchCategory(newCategory) {
+            if (activeCategory === newCategory) return;
 
+            // 1. Update active tab button
+            document.querySelector(`.tab-button[data-category="${activeCategory}"]`).classList.remove('active');
+            document.querySelector(`.tab-button[data-category="${newCategory}"]`).classList.add('active');
+
+            // 2. Hide old content, show new content
+            document.getElementById(`content-${activeCategory}`).classList.remove('active');
+            document.getElementById(`content-${newCategory}`).classList.add('active');
+
+            // 3. Update active theme on the body
+            document.body.classList.remove(CATEGORIES[activeCategory].theme);
+            document.body.classList.add(CATEGORIES[newCategory].theme);
+            
+            // 4. Update meta theme color for PWA (if supported)
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', getComputedStyle(document.body).getPropertyValue('--primary-accent'));
+
+
+            activeCategory = newCategory;
+
+            // 5. Clear search input and re-render
+            SEARCH_INPUT.value = '';
+            renderVideos(activeCategory, allData[activeCategory]);
+        }
+
+
+        // --- SEARCH/FILTERING ---
         function handleSearch() {
             const query = SEARCH_INPUT.value.toLowerCase().trim();
+            const videos = allData[activeCategory];
+            
             if (!query) {
-                renderVideos(allVideos);
+                renderVideos(activeCategory, videos);
                 return;
             }
 
-            const filteredVideos = allVideos.filter(video => 
+            const filteredVideos = videos.filter(video => 
                 video.title.toLowerCase().includes(query) ||
                 video.channelName.toLowerCase().includes(query)
             );
 
-            renderVideos(filteredVideos);
+            renderVideos(activeCategory, filteredVideos);
         }
 
-        // --- THEME TOGGLE ---
+        // --- THEME TOGGLE (Night/Day) ---
+        function getActiveThemeColor() {
+            return getComputedStyle(document.body).getPropertyValue('--primary-accent').trim();
+        }
+
         function initTheme() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'night' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -587,12 +756,15 @@
                 document.body.classList.remove('night-mode');
                 THEME_ICON.classList.replace('fa-moon', 'fa-sun');
             }
+            // Set initial theme color for PWA
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', getActiveThemeColor());
         }
 
         function toggleTheme() {
             const isNight = document.body.classList.toggle('night-mode');
             localStorage.setItem('theme', isNight ? 'night' : 'day');
             
+            // Cool icon animation
             THEME_ICON.style.transform = 'rotate(360deg)';
             THEME_ICON.style.transition = 'transform 0.4s ease-out';
             setTimeout(() => {
@@ -600,16 +772,29 @@
                 THEME_ICON.classList.toggle('fa-moon', isNight);
                 THEME_ICON.style.transform = 'rotate(0deg)';
             }, 200);
+            
+            // Update meta theme color dynamically
+            setTimeout(() => {
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', getActiveThemeColor());
+            }, 400);
         }
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
-            fetchCSV();
+            fetchAllData();
             
             // Event Listeners
             SEARCH_INPUT.addEventListener('input', handleSearch);
             THEME_TOGGLE.addEventListener('click', toggleTheme);
+            
+            // Tab switching listeners
+            TABS_CONTAINER.addEventListener('click', (e) => {
+                const button = e.target.closest('.tab-button');
+                if (button) {
+                    switchCategory(button.dataset.category);
+                }
+            });
 
             // Modal Close Listeners
             MODAL_CLOSE_BUTTON.addEventListener('click', closeModal);
@@ -625,6 +810,5 @@
             });
         });
     </script>
-
 </body>
 </html>
