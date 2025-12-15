@@ -1,10 +1,11 @@
 {
-  "name": "ASMR Library App",
-  "short_name": "ASMR App",
-  "description": "Your curated list of ASMR videos.",
-  "start_url": "./asmr_videos_pwa.html",
+  "name": "My Video Library",
+  "short_name": "My Vids",
+  "description": "Your multi-category curated video library with offline support.",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1f2937",
+  "orientation": "portrait",
+  "background_color": "#f7f9fc",
   "theme_color": "#ef4444",
   "icons": [
     {
