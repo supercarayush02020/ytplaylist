@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASMR Video Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* --- CSS Variables for Theme & Colors --- */
+        :root {
+            /* Day Mode */
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --secondary-text: #6b7280;
+            --primary-accent: #ef4444; /* Red, like YouTube */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-hover: rgba(0, 0, 0, 0.15);
+            --border-color: #e5e7eb;
+        }
+
+        /* Night Mode Overrides */
+        .night-mode {
+            --bg-color: #1f2937;
+            --card-bg: #374151;
+            --text-color: #f3f4f6;
+            --secondary-text: #9ca3af;
+            --primary-accent: #60a5fa; /* A cool blue for night mode accent */
+            --shadow-light: rgba(255, 255, 255, 0.05);
+            --shadow-hover: rgba(255, 255, 255, 0.1);
+            --border-color: #4b5563;
+        }
+
+        /* --- Global Styles --- */
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        h1 {
+            font-weight: 800;
+            margin: 0;
+            color: var(--primary-accent);
+        }
+
+        /* --- Header & Controls --- */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        #search-input {
+            padding: 10px 15px 10px 40px;
+            border-radius: 25px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            width: 250px;
+            transition: border-color 0.3s, background-color 0.3s, width 0.3s;
+        }
+
+        #search-input:focus {
+            border-color: var(--primary-accent);
+            outline: none;
+            width: 300px;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-text);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--secondary-text);
+            transition: color 0.3s;
+            padding: 5px;
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-accent);
+        }
+
+        /* --- Video Grid --- */
+        #video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 30px 5%;
+        }
+
+        /* --- Video Card (The Aesthetic Part) --- */
+        .video-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-hover);
+        }
+
+        /* Thumbnail */
+        .card-thumbnail-container {
+            position: relative;
+            aspect-ratio: 16 / 9; /* Standard YouTube ratio */
+            overflow: hidden;
+        }
+
+        .card-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .video-card:hover .card-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .card-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Content */
+        .card-content {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 8px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit title to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+
+        .card-channel {
+            color: var(--secondary-text);
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-channel i {
+            margin-right: 5px;
+            color: var(--primary-accent);
+        }
+
+        /* Button */
+        .copy-button {
+            background-color: var(--primary-accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto; /* Push button to the bottom */
+        }
+
+        .copy-button i {
+            margin-right: 8px;
+        }
+
+        .copy-button:hover {
+            background-color: #c22b2b; /* Darker red */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px var(--shadow-hover);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        /* Footer Message */
+        .footer-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary-text);
+        }
+        
+        /* Animation: Fade in cards */
+        .video-card {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 5%;
+            }
+            .controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            #search-input {
+                width: 100%;
+                max-width: none;
+            }
+            #search-input:focus {
+                width: 100%;
+            }
+            #video-grid {
+                grid-template-columns: 1fr;
+                padding: 15px 5%;
+            }
+            .theme-toggle {
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>ASMR Library</h1>
+        <div class="controls">
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Search title or channel...">
+            </div>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle night and day mode">
+                <i class="fa-solid fa-sun" id="theme-icon"></i>
+            </button>
+        </div>
+    </div>
+
+    <main id="video-grid"></main>
+    
+    <div class="footer-message">
+        <p>End of results. Powered by local CSV data.</p>
+    </div>
+
+    <template id="video-card-template">
+        <a href="#" target="_blank" class="video-card">
+            <div class="card-thumbnail-container">
+                <img src="" alt="Video thumbnail" class="card-thumbnail" data-thumb>
+                <span class="card-duration" data-duration></span>
+            </div>
+            <div class="card-content">
+                <p class="card-title" data-title></p>
+                <p class="card-channel" data-channel><i class="fa-solid fa-user-astronaut"></i></p>
+                <button class="copy-button" type="button" data-copy-url><i class="fa-solid fa-link"></i> Copy URL</button>
+            </div>
+        </a>
+    </template>
+
+    <script>
+        // --- CONSTANTS ---
+        const CSV_FILE = 'asmr.csv';
+        const GRID = document.getElementById('video-grid');
+        const TEMPLATE = document.getElementById('video-card-template');
+        const SEARCH_INPUT = document.getElementById('search-input');
+        const THEME_TOGGLE = document.getElementById('theme-toggle');
+        const THEME_ICON = document.getElementById('theme-icon');
+        
+        let allVideos = [];
+
+        // --- CSV PARSING (A simple, robust parser for this specific format) ---
+        /**
+         * Simple custom parser for CSV data.
+         * Handles titles/fields enclosed in double quotes, including embedded commas.
+         */
+        function parseCSV(text) {
+            const rows = text.split(/\r?\n/);
+            // Assuming the first row is the header, but we'll hardcode the known columns for safety
+            const data = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i].trim();
+                if (!row) continue;
+
+                const fields = [];
+                let currentField = '';
+                let inQuote = false;
+
+                for (let j = 0; j < row.length; j++) {
+                    const char = row[j];
+
+                    if (char === '"') {
+                        // Toggle inQuote state
+                        inQuote = !inQuote;
+                        // Skip adding the quote character to the field content
+                    } else if (char === ',' && !inQuote) {
+                        // End of a field
+                        fields.push(currentField.trim());
+                        currentField = '';
+                    } else {
+                        // Append character to current field
+                        currentField += char;
+                    }
+                }
+                // Add the last field
+                fields.push(currentField.trim());
+
+                // Structure the data based on known column order (Title, Video url, Thumbnail url, Channel name, Duration)
+                if (fields.length === 5) {
+                    data.push({
+                        title: fields[0],
+                        videoUrl: fields[1],
+                        thumbnailUrl: fields[2],
+                        channelName: fields[3],
+                        duration: fields[4]
+                    });
+                }
+            }
+            return data;
+        }
+
+        // --- DATA FETCHING ---
+        async function fetchCSV() {
+            try {
+                const response = await fetch(CSV_FILE);
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${CSV_FILE}: ${response.statusText}`);
+                }
+                const text = await response.text();
+                allVideos = parseCSV(text);
+                renderVideos(allVideos);
+            } catch (error) {
+                console.error("Error fetching or parsing CSV:", error);
+                GRID.innerHTML = `<p style="color: var(--primary-accent); text-align: center;">Error: Could not load video data. Is '${CSV_FILE}' in the correct location?</p>`;
+            }
+        }
+
+        // --- RENDERING ---
+        function renderVideos(videos) {
+            GRID.innerHTML = '';
+            
+            videos.forEach((video, index) => {
+                // Set an animation delay for a staggered, cool animation
+                const delay = index * 0.05; 
+                
+                const card = TEMPLATE.content.cloneNode(true).querySelector('.video-card');
+                card.style.animationDelay = `${delay}s`;
+
+                // Set primary link
+                card.href = video.videoUrl;
+
+                // Populate elements
+                card.querySelector('[data-title]').textContent = video.title;
+                card.querySelector('[data-channel]').innerHTML = `<i class="fa-solid fa-user-astronaut"></i> ${video.channelName}`;
+                card.querySelector('[data-thumb]').src = video.thumbnailUrl;
+                card.querySelector('[data-duration]').textContent = video.duration;
+
+                // Copy URL Button logic
+                const copyButton = card.querySelector('[data-copy-url]');
+                copyButton.onclick = (e) => {
+                    e.preventDefault(); // Stop the card from linking
+                    e.stopPropagation(); // Stop click from propagating to the link
+
+                    navigator.clipboard.writeText(video.videoUrl).then(() => {
+                        const originalText = copyButton.innerHTML;
+                        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                        copyButton.style.backgroundColor = 'green';
+                        setTimeout(() => {
+                            copyButton.innerHTML = originalText;
+                            copyButton.style.backgroundColor = ''; // Revert to CSS variable
+                        }, 1500);
+                    }).catch(err => {
+                        console.error('Could not copy text: ', err);
+                    });
+                };
+
+                GRID.appendChild(card);
+            });
+            
+            if (videos.length === 0) {
+                GRID.innerHTML = '<p style="text-align: center; width: 100%; color: var(--secondary-text);">No videos found matching your search criteria.</p>';
+            }
+        }
+
+        // --- SEARCH/FILTERING ---
+        function handleSearch() {
+            const query = SEARCH_INPUT.value.toLowerCase().trim();
+            if (!query) {
+                renderVideos(allVideos);
+                return;
+            }
+
+            const filteredVideos = allVideos.filter(video => 
+                video.title.toLowerCase().includes(query) ||
+                video.channelName.toLowerCase().includes(query)
+            );
+
+            renderVideos(filteredVideos);
+        }
+
+        // --- THEME TOGGLE ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'night' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('night-mode');
+                THEME_ICON.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                document.body.classList.remove('night-mode');
+                THEME_ICON.classList.replace('fa-moon', 'fa-sun');
+            }
+        }
+
+        function toggleTheme() {
+            const isNight = document.body.classList.toggle('night-mode');
+            localStorage.setItem('theme', isNight ? 'night' : 'day');
+            
+            // Cool icon animation
+            THEME_ICON.style.transform = 'rotate(360deg)';
+            THEME_ICON.style.transition = 'transform 0.4s ease-out';
+            setTimeout(() => {
+                THEME_ICON.classList.toggle('fa-sun', !isNight);
+                THEME_ICON.classList.toggle('fa-moon', isNight);
+                THEME_ICON.style.transform = 'rotate(0deg)';
+            }, 200);
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            fetchCSV();
+            
+            // Event Listeners
+            SEARCH_INPUT.addEventListener('input', handleSearch);
+            THEME_TOGGLE.addEventListener('click', toggleTheme);
+        });
+    </script>
+
+</body>
+</html>
